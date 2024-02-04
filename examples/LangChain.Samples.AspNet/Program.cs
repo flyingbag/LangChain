@@ -11,6 +11,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddOpenAi();
 builder.Services.AddAnthropic();
+builder.Services.AddGoogle();
 
 var app = builder.Build();
 
