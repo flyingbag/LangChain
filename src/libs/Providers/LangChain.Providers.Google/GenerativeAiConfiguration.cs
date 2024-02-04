@@ -41,4 +41,8 @@ public class GenerativeAiConfiguration
     /// </summary>
     public int? MaxOutputTokens { get; set; } = default!;
    
+    /// <summary>
+    ///
+    /// </summary>
+    public int? ContextLength { get; set; } = default!;
 }

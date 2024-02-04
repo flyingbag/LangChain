@@ -7,7 +7,7 @@ namespace LangChain.Providers.Models;
 /// <summary>
 /// 
 /// </summary>
-public class GenerativeModel
+public class GenerativeModel : IChatModel
 {
     #region Properties
 
@@ -25,6 +25,12 @@ public class GenerativeModel
     /// 
     /// </summary>
     public Usage TotalUsage { get; private set; }
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public int ContextLength { get; }
 
     private HttpClient HttpClient { get; set; }
 
@@ -51,6 +57,7 @@ public class GenerativeModel
         configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         ApiKey = configuration.ApiKey ?? throw new ArgumentException("ApiKey is not defined", nameof(configuration));
         Id = configuration.ModelId ?? throw new ArgumentException("ModelId is not defined", nameof(configuration));
+        ContextLength = configuration.ContextLength ?? 0;
         HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         Configuration = configuration;
         Api = new GenerativeAI.Models.GenerativeModel(this.ApiKey, Id, HttpClient);
