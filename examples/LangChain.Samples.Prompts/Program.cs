@@ -3,12 +3,17 @@ using LangChain.Prompts;
 using LangChain.Providers.OpenAI;
 using LangChain.Schema;
 
-const string apiKey = "API-KEY";
+var apiKey =
+    Environment.GetEnvironmentVariable("OPENAI_API_KEY") ??
+    throw new InvalidOperationException("OPENAI_API_KEY environment variable is not found.");
 using var httpClient = new HttpClient();
-var llm = new Gpt35TurboModel(apiKey);
 
-var template = "What is a good name for a company that makes {product}?";
-var prompt = new PromptTemplate(new PromptTemplateInput(template, new List<string>(1) { "product" }));
+var llm = new OpenAiModel(apiKey, OpenAI.Constants.ChatModels.Gpt35Turbo);
+
+var prompt = ChatPromptTemplate.FromPromptMessages(new List<BaseMessagePromptTemplate>()
+{
+    SystemMessagePromptTemplate.FromTemplate("What is a good name for a company that makes {product}?")
+});
 
 var chain = new LlmChain(new LlmChainInput(llm, prompt));
 
@@ -20,14 +25,8 @@ var result = await chain.CallAsync(new ChainValues(new Dictionary<string, object
 // The result is an object with a `text` property.
 Console.WriteLine(result.Value["text"]);
 
-// Since the LLMChain is a single-input, single-output chain, we can also call it with `run`.
-// This takes in a string and returns the `text` property.
-var result2 = await chain.Run("colourful socks");
-
-Console.WriteLine(result2);
-
 // We can also construct an LLMChain from a ChatPromptTemplate and a chat model.
-var chat = new Gpt35TurboModel(apiKey);
+var chat = new OpenAiModel(apiKey, OpenAI.Constants.ChatModels.Gpt35Turbo);
 
 var chatPrompt = ChatPromptTemplate.FromPromptMessages(new List<BaseMessagePromptTemplate>(2)
 {
@@ -43,8 +42,9 @@ var chainB = new LlmChain(new LlmChainInput(chat, chatPrompt)
 var resultB = await chainB.CallAsync(new ChainValues(new Dictionary<string, object>(3)
 {
     {"input_language", "English"},
-    {"output_language", "French"},
-    {"text", "I love programming"},
+    {"output_language", "Chinese"},
+    // Taking the result from the previous chain
+    {"text", result.Value["text"]}
 }));
 
 Console.WriteLine(resultB.Value["text"]);
